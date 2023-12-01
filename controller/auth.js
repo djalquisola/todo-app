@@ -12,6 +12,10 @@ export const login = async (req, res) => {
 
   const user = await User.findOne({ email });
 
+  if (!user) {
+    throw new UnAuthenticatedError('Invalid credentials');
+  }
+
   const isPasswordVerified = await user.comparePassword(password);
 
   if (!isPasswordVerified) {

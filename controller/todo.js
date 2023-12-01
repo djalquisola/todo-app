@@ -14,7 +14,7 @@ export const createToDo = async (req, res) => {
 export const getTodo = async (req, res) => {
   //queries
   const { createdBy } = req.user;
-  const todos = await ToDo.find({ ...createdBy });
+  const todos = await ToDo.find({ ...createdBy }).populate('createdBy', 'name');
 
   res.status(StatusCodes.OK).json({ todos });
 };
@@ -23,10 +23,12 @@ export const getSingleToDo = async (req, res) => {
   const { id } = req.params;
   const { createdBy } = req.user;
 
+  console.log(createdBy);
+
   const todo = await ToDo.findOne({
     _id: id,
     ...createdBy,
-  });
+  }).populate('createdBy', 'name');
 
   res.status(StatusCodes.OK).json({
     todo,
@@ -39,7 +41,7 @@ export const updateToDo = async (req, res) => {
     params: { id },
   } = req;
 
-  const todo = await ToDo.findByIdAndUpdate(
+  const todo = await ToDo.findOneAndUpdate(
     {
       _id: id,
       ...createdBy,
@@ -65,8 +67,8 @@ export const deleteToDo = async (req, res) => {
   });
 
   if (!removedToDo) {
-    throw new NotFoundError(`No job with id: ${id}`);
+    throw new NotFoundError(`No todo with id: ${id}`);
   }
 
-  res.status(StatusCodes.OK).json({ msg: 'job deleted' });
+  res.status(StatusCodes.OK).json({ msg: 'ToDo deleted' });
 };

@@ -21,8 +21,8 @@ router.route('/').get(getTodo).post(validateToDoInput, createToDo);
 router
   .route('/:id')
   .get(validateIdParam, getSingleToDo)
-  .patch(validateUpdatePatchToDo, updateToDo)
-  .put(validateUpdatePutToDo, updateToDo)
+  .patch(validateIdParam, validateUpdatePatchToDo, updateToDo)
+  .put(validateIdParam, validateUpdatePutToDo, updateToDo)
   .delete(validateIdParam, deleteToDo);
 
 export default router;
