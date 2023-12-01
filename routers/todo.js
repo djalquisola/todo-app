@@ -5,7 +5,6 @@ import {
   getSingleToDo,
   getTodo,
   updateToDo,
-  updateWholeToDo,
 } from '../controller/todo.js';
 
 const router = express.Router();
@@ -15,7 +14,7 @@ router
   .route('/:id')
   .get(getSingleToDo)
   .patch(updateToDo)
-  .put(updateWholeToDo)
+  .put(updateToDo)
   .delete(deleteToDo);
 
 export default router;

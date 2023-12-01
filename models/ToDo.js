@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { TODO_STATUS } from '../constants/constants.js';
 
 /*
     ToDo
@@ -25,8 +26,8 @@ const ToDoSchema = mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'working', 'completed'],
-      default: 'pending',
+      enum: [TODO_STATUS.PENDING, TODO_STATUS.WORKING, TODO_STATUS.COMPLETED],
+      default: TODO_STATUS.PENDING,
     },
     createdBy: {
       type: mongoose.Types.ObjectId,
