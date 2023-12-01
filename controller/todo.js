@@ -1,7 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
-import { USER_TYPE } from '../constants/constants.js';
 import ToDo from '../models/ToDo.js';
-import BadRequestError from '../errors/bad-request.js';
+import NotFoundError from '../errors/not-found.js';
 
 export const createToDo = async (req, res) => {
   req.body.createdBy = req.user.userId;
@@ -14,18 +13,20 @@ export const createToDo = async (req, res) => {
 
 export const getTodo = async (req, res) => {
   //queries
-
-  const filter =
-    req.user.role === USER_TYPE.ADMIN ? {} : { createdBy: req.user.userId };
-  const todos = await ToDo.find({ ...filter });
+  const { createdBy } = req.user;
+  const todos = await ToDo.find({ ...createdBy });
 
   res.status(StatusCodes.OK).json({ todos });
 };
 
 export const getSingleToDo = async (req, res) => {
   const { id } = req.params;
+  const { createdBy } = req.user;
 
-  const todo = await ToDo.findById(id);
+  const todo = await ToDo.findOne({
+    _id: id,
+    ...createdBy,
+  });
 
   res.status(StatusCodes.OK).json({
     todo,
@@ -34,19 +35,14 @@ export const getSingleToDo = async (req, res) => {
 
 export const updateToDo = async (req, res) => {
   const {
-    body: { title, details },
-    user: { userId },
+    user: { createdBy },
     params: { id },
   } = req;
-
-  // if (title === '' && details === '') {
-  //   throw new BadRequestError("Title and Details can't be empty");
-  // }
 
   const todo = await ToDo.findByIdAndUpdate(
     {
       _id: id,
-      createdBy: userId,
+      ...createdBy,
     },
     req.body,
     { new: true }
@@ -58,5 +54,19 @@ export const updateToDo = async (req, res) => {
 };
 
 export const deleteToDo = async (req, res) => {
-  res.send('Delete Todo');
+  const {
+    user: { createdBy },
+    params: { id: id },
+  } = req;
+
+  const removedToDo = await ToDo.findOneAndDelete({
+    _id: id,
+    ...createdBy,
+  });
+
+  if (!removedToDo) {
+    throw new NotFoundError(`No job with id: ${id}`);
+  }
+
+  res.status(StatusCodes.OK).json({ msg: 'job deleted' });
 };

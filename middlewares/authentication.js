@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { UnAuthenticatedError } from '../errors/index.js';
+import { USER_TYPE } from '../constants/constants.js';
 
 const auth = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -17,6 +18,7 @@ const auth = (req, res, next) => {
       userId: payload.userId,
       name: payload.name,
       role: payload.role,
+      createdBy: payload.role === USER_TYPE.ADMIN ? {} : { createdBy: payload.userId },
     };
     next();
   } catch (err) {
