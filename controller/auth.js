@@ -4,13 +4,13 @@ import { StatusCodes } from 'http-status-codes';
 import { BadRequestError, UnAuthenticatedError } from '../errors/index.js';
 
 export const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
-  if (!email || !password) {
+  if (!username || !password) {
     throw new BadRequestError('Please provide email and password');
   }
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ username });
 
   if (!user) {
     throw new UnAuthenticatedError('Invalid credentials');
