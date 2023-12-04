@@ -5,6 +5,24 @@ import { BadRequestError, NotFoundError } from '../errors/index.js';
 import { TODO_STATUS } from '../constants/constants.js';
 import ToDo from '../models/ToDo.js';
 
+// custom middleware for validating the todo
+export const validateIdParam = async (req, res, next) => {
+  const { id: todoId } = req.params;
+  const userId = req.user.userId;
+  const isValidId = mongoose.Types.ObjectId.isValid(todoId);
+  if (!isValidId) throw new BadRequestError('Invalid MongoDB ID');
+
+  const todo = await ToDo.findOne({
+    _id: todoId,
+    createdBy: userId,
+    isDeleted: false,
+  });
+
+  if (!todo) throw new NotFoundError(`No ToDo with id ${todoId}`);
+
+  next();
+};
+
 const withValidationErrors = (validateValues) => {
   return [
     validateValues,
@@ -27,19 +45,6 @@ const isNotEmpty = (value) => {
   }
   return true;
 };
-
-export const validateIdParam = withValidationErrors([
-  param('id').custom(async (value) => {
-    const isValidId = mongoose.Types.ObjectId.isValid(value);
-    if (!isValidId) throw new BadRequestError('Invalid MongoDB ID');
-
-    const todo = await ToDo.findOne({
-      _id: value,
-      isDeleted: false,
-    });
-    if (!todo) throw new NotFoundError(`No ToDo with id ${value}`);
-  }),
-]);
 
 // for post
 export const validateToDoInput = withValidationErrors([

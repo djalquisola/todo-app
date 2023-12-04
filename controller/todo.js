@@ -26,8 +26,6 @@ export const getSingleToDo = async (req, res) => {
   const { id } = req.params;
   const { createdBy } = req.user;
 
-  console.log(createdBy);
-
   const todo = await ToDo.findOne({
     _id: id,
     isDeleted: false,
