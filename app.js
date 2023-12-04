@@ -16,6 +16,13 @@ app.use(express.json());
 app.use(`${BASE_URL}/auth`, authRouter);
 app.use(`${BASE_URL}/todo`, auth, todoRouter);
 
+//fetching other requests
+app.use('*', (req, res) => {
+  res.status(404).json({
+    msg: 'Not found.',
+  });
+});
+
 app.use(errorHandlerMiddleware);
 
 export default app;
