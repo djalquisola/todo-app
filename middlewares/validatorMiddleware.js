@@ -57,7 +57,7 @@ export const validateToDoInput = withValidationErrors([
   body('details').notEmpty().withMessage('Details must not be empty'),
   body('status')
     .optional()
-    .isIn(TODO_STATUS)
+    .isIn(Object.values(TODO_STATUS))
     .withMessage('Invalid status value'),
 ]);
 
@@ -71,7 +71,7 @@ export const validateUpdatePatchToDo = withValidationErrors([
   body('details').optional(),
   body('status')
     .optional()
-    .isIn(TODO_STATUS)
+    .isIn(Object.values(TODO_STATUS))
     .withMessage('Invalid status value'),
 ]);
 
