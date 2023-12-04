@@ -33,7 +33,10 @@ export const validateIdParam = withValidationErrors([
     const isValidId = mongoose.Types.ObjectId.isValid(value);
     if (!isValidId) throw new BadRequestError('Invalid MongoDB ID');
 
-    const todo = await ToDo.findById(value);
+    const todo = await ToDo.findOne({
+      _id: value,
+      isDeleted: false,
+    });
     if (!todo) throw new NotFoundError(`No ToDo with id ${value}`);
   }),
 ]);

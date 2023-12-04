@@ -5,16 +5,19 @@ import NotFoundError from '../errors/not-found.js';
 export const createToDo = async (req, res) => {
   req.body.createdBy = req.user.userId;
   const todo = await ToDo.create(req.body);
+  const finalTodo = todo.toJSON();
 
   res.status(StatusCodes.CREATED).json({
-    todo,
+    finalTodo,
   });
 };
 
 export const getTodo = async (req, res) => {
   //queries
   const { createdBy } = req.user;
-  const todos = await ToDo.find({ ...createdBy }).populate('createdBy', 'name');
+  const todos = await ToDo.find({ ...createdBy, isDeleted: false })
+    .select('-isDeleted')
+    .populate('createdBy', 'name');
 
   res.status(StatusCodes.OK).json({ todos });
 };
@@ -27,8 +30,11 @@ export const getSingleToDo = async (req, res) => {
 
   const todo = await ToDo.findOne({
     _id: id,
+    isDeleted: false,
     ...createdBy,
-  }).populate('createdBy', 'name');
+  })
+    .select('-isDeleted')
+    .populate('createdBy', 'name');
 
   res.status(StatusCodes.OK).json({
     todo,
@@ -44,6 +50,7 @@ export const updateToDo = async (req, res) => {
   const todo = await ToDo.findOneAndUpdate(
     {
       _id: id,
+      isDeleted: false,
       ...createdBy,
     },
     req.body,
@@ -61,10 +68,14 @@ export const deleteToDo = async (req, res) => {
     params: { id: id },
   } = req;
 
-  const removedToDo = await ToDo.findOneAndDelete({
-    _id: id,
-    ...createdBy,
-  });
+  const removedToDo = await ToDo.findOneAndUpdate(
+    {
+      _id: id,
+      isDeleted: false,
+      ...createdBy,
+    },
+    { isDeleted: true }
+  );
 
   if (!removedToDo) {
     throw new NotFoundError(`No todo with id: ${id}`);

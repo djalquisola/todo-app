@@ -29,6 +29,10 @@ const ToDoSchema = mongoose.Schema(
       enum: [TODO_STATUS.PENDING, TODO_STATUS.WORKING, TODO_STATUS.COMPLETED],
       default: TODO_STATUS.PENDING,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
     createdBy: {
       type: mongoose.Types.ObjectId,
       ref: 'User',
@@ -38,6 +42,13 @@ const ToDoSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+
+
+ToDoSchema.methods.toJSON = function () {
+  const userObject = this.toObject();
+  delete userObject.isDeleted;
+  return userObject;
+};
 
 const ToDo = mongoose.model('ToDo', ToDoSchema);
 
